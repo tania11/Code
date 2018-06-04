@@ -1,0 +1,27 @@
+<% include layout %>
+<div class="container">
+    
+    <form class="form-inline" method="post" action="/edit">
+        <div class="form-group">
+            <label for="fname">First Name:</label>
+            <input type="text" class="form-control" id="fname" value="<%= accounts.firstname %>" placeholder="Enter first name" name="firstname">
+        </div>
+        <div class="form-group">
+            <label for="pwd">Last Name:</label>
+            <input type="text" class="form-control" id="lname" value="<%= accounts.lastname %>" placeholder="Enter last name" name="lastname">
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" value="<%= accounts.email %>" placeholder="Enter email" name="email">
+        </div>
+        <div class="form-group" style="display:none;">
+            <label for="pwd">id:</label>
+            <input type="text" class="form-control" id="unique" value="<%= accounts.id %>" placeholder="Enter id" name="id">
+        </div>
+      
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+  </div>
+  
+  </body>
+  </html>

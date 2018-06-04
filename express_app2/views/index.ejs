@@ -1,0 +1,79 @@
+<% include layout %>
+
+<body>
+    <div class="container">
+      <a class="pull-left" href="/1/addnew"><input type="submit" class="btn btn-primary"  value="Add"></input></a>
+
+      <form class=" pull-right form-inline" method="get" action="/search">
+        <div class="form-group">
+          <input type="text" class="form-control" id="search" placeholder="Search..">
+        </div>
+        <input type="submit" class="btn btn-default" value="Search"></input>
+      </form>
+
+      <table class="table table-striped">
+        <tr>
+          <th>ID</th>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+        
+        <% accounts.one.forEach(function(account){ %>
+          <tr>
+            <td><%= account.id %></td>
+            <td><%= account.firstname %></td>
+            <td><%= account.lastname %></td>
+            <td><%= account.email %></td>
+            <td><a href="/edit/<%= account.id %>">Edit</a>
+              |
+            <a href="/delete/<%= account.id %>" onclick="return confirm('Are you sure??')">Delete</a></td>
+          </tr>
+        <% }) %>
+      </table>
+      <div class="pull-left">
+        <ul class="pagination">
+
+          <% var tot_pg=Math.ceil(accounts.two[0].tot_count/5);
+          if(current_page==1){ %>
+            <li class="disabled"><a  href="/<%= current_page %>">Previous</a></li>
+          <% } else{ %>
+            <li><a  href="/<%= (current_page-1) %>">Previous</a></li>
+          <% } %>
+
+          <% for(var i=1;i<= Math.ceil(accounts.two[0].tot_count/5) && i<=5;i++){
+            if(current_page==i){ %>
+              <li class="active"><a href="/<%= i %>"><%= i %></a></li>
+            <% } else{ %>
+              <li><a href="/<%= i %>"><%= i %></a></li>
+            <% } 
+          } %>
+
+          <% if(tot_pg>5){
+              if(tot_pg==current_page){ %>
+                <li  class="visible active"><a  href="/<%= (tot_pg) %>">Last</a></li>
+              <% } else{ %>
+                <li  class="visible"><a  href="/<%= (tot_pg) %>">Last</a></li>
+              <% } 
+          } %>
+
+          <% if(tot_pg<=5){ %>
+            <li class="hidden"><a  href="/<%= current_page %>">Next</a></li>
+          <% } else if(tot_pg>5 && current_page!=tot_pg){ %>
+            <li  class="visible"><a  href="/<%= (current_page+1) %>">Next</a></li>
+          <% } else{ %>
+            <li  class="visible disabled"><a  href="/<%= (current_page) %>">Next</a></li>
+          <% } %>
+
+        </ul>
+      </div>
+
+      <div class="pull-right">
+        <span>Showing page-</span><%= current_page %> <span> of </span> <%= tot_pg %>
+      </div>
+    </div>
+</body>
+</html>
+
+
