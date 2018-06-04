@@ -1,0 +1,25 @@
+html 
+  head
+    title Account List
+  body
+    form(method="post" action="/account/edit")
+      table
+        tr
+          th FirstName
+          td
+            input(type="text", name ="firstname", value=account.firstname)
+            input(type="hidden", name ="id", value=account.id)
+        tr
+          th LastName
+          td
+            input(type="text", name ="lastname", value=account.lastname)
+        tr
+          th Email
+          td
+            input(type="email", name ="email", value=account.email)
+        tr
+          th &nbsp;
+          td
+            input(type="submit" value="Save")
+
+

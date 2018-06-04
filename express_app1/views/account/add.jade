@@ -1,0 +1,24 @@
+html 
+  head
+    title Account List
+  body
+    form(method="post" action="/account/add")
+      table
+        tr
+          th FirstName
+          td
+            input(type="text", name ="firstname")
+        tr
+          th LastName
+          td
+            input(type="text", name ="lastname")
+        tr
+          th Email
+          td
+            input(type="email", name ="email")
+        tr
+          th &nbsp;
+          td
+            input(type="submit" value="Save")
+
+
