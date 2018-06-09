@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="../js/d3.v3.min.js"></script>
+    </head>
+    <style>
+      
+        .workflow-component{
+            display:flex;
+            align-items:center;
+            width:10%;
+            float:left;
+        }
+        
+        .circle{
+            width:20px;
+            height:20px;
+            border-radius: 50%;
+        }
+        
+        .line-container{
+            vertical-align:middle;
+            width:calc(101% - 21px);
+            height:20px;
+        }
+
+        #tooltip_container{
+            position:absolute;
+            text-align: center;
+            min-width: 100px;
+            height:auto;
+            background-color: rgb(255, 255, 255);
+            border:2px solid rgb(117, 112, 112);
+            padding:10px;
+            z-index:3;
+        }
+
+        .workflow{
+            height:50px;
+        }
+    </style>
+    
+    <body id="body_id">
+    </body>
+</html>
+
+<script>
+   
+    d3.json("https://api.myjson.com/bins/1fxtky",function(error,response){
+        if(error){
+            alert(error);
+        }    
+
+        response.forEach(function(data){
+            dynamicWorkflow(data);
+        });
+    })
+    
+    
+    //workflow dynamic
+    function dynamicWorkflow(data){
+        
+        console.log(data);
+        var tooltip=d3.select("#body_id")
+                        .append("div")
+                        .attr("id","tooltip_container")
+                        .style("opacity","0")
+                        .style("display","none");
+
+        
+        var workflowComponent=d3.select("#body_id")
+            .append("div")
+            .attr("class","workflow")
+            .append("div")
+            .attr("class","workflow-container")
+            .selectAll(".workflow-component")
+            .data(data)
+            .enter()
+            .append("div")
+            .attr("class","workflow-component");
+
+
+        var workflowCircle=workflowComponent.append("div")
+            .attr("class","circle")
+            .style("background","#D8DED6");
+            
+
+        var workflowLine=workflowComponent
+            .filter(function(d,i){
+                return (i+1)!=data.length;
+            })
+            .append("svg")
+            .attr("class","line-container");
+        
+           
+        workflowLine
+            .append("line")
+            .attr("stroke","#D8DED6")
+            .attr("stroke-width",5)
+            .attr("stroke-linecap","round")
+            .attr({
+                "x1": 0,
+                "y1": "50%",
+                "x2": "100%",
+                "y2": "50%"
+            });
+
+        workflowCircle
+            .transition()
+            .duration(1000)
+            .delay(function(d,i){
+                return 1000*i;
+            })
+            .style("background",function(d,i){
+                return d.state;
+            });
+        
+
+        workflowLine
+            .append("line")
+            .attr("stroke",function(d){
+               return d.state;
+            })
+            .attr("stroke-width",5)
+            .attr("stroke-linecap","round")
+            .attr({
+                "x1": -2,
+                "y1": "50%",
+                "x2": -2,
+                "y2": "50%"
+            })
+            .transition()
+            .duration(1000)
+            .delay(function(d,i){
+                return 1000*(i+1);
+            })
+            .attr({
+                "x2": "100%",
+                "y2": "50%"
+            });
+        
+       
+        workflowCircle.on("mouseover",function(d){
+            d3.select(this).style("cursor","pointer");
+
+            //tooltip appears on hover
+            tooltip.transition()
+            .duration(200)
+            .style("opacity","1")
+            .style("display","block");
+            
+            tooltip
+            .html(function(){
+                var htmlContent="<div>"+
+                                    "<div class='tooltip-row'>"+
+                                        "<label>Process:</label>"+
+                                        "<span>"+d.status+"<span>"+
+                                    "<div>"+
+                                    "<div class='tooltip-row'>"+
+                                        "<label>Date:</label>"+
+                                        "<span>"+d.status_date+"<span>"+
+                                    "<div>"+
+                                "</div>";
+                return htmlContent;
+            })
+            .style("left",(d3.event.pageX)+"px")
+            .style("top",(d3.event.pageY+10)+"px");;
+
+        });
+
+        workflowCircle.on("mouseout",function(d){
+            
+            d3.select("#tooltip_container").empty();
+
+            tooltip.transition()
+            .duration(200)
+            .style("opacity","0")
+            .style("display","none");
+        })
+    }
+    
+</script>
