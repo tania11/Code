@@ -1,0 +1,105 @@
+                                                                                      
+<div class="container-fluid">
+	<div class="container">
+		
+		<!--<div class="button-group unhide-multi-columns">
+			<button type="button" class="btn btn-default btn-sm-dropdown-toggle" data-toggle="dropdown">
+				<span>Unhide Columns</span><span class="caret"></span>
+			</button>
+	
+			<ul class="dropdown-menu custom-dropdown-menu">
+				<li ng-repeat="hidddencol in hiddenColList track by $index"  >
+					<a href=""  ng-click="$event.stopPropagation();selected=true;checkHiddenColms(selected,hidddencol)"  data-value={{hidddencol}} tabIndex="-1">
+						<input type="checkbox" ng-model="selected"/>
+						{{hidddencol}}
+					</a>
+				</li>
+			</ul>
+		</div>-->
+
+		<div class="button-group unhide-multi-columns">
+			<button type="button" class="btn btn-default btn-sm-dropdown-toggle" data-toggle="dropdown">
+				<span>Columns</span>
+				<span class="badge">{{TotalColList.length-hiddenColList.length}}</span>
+				<span class="caret"></span>
+			</button>
+	
+			<ul class="dropdown-menu custom-dropdown-menu">
+				<li style="width:90%;margin:auto;">
+					<input  placeholder="Search..." class="dropdown-search" ng-model="searchText">
+				</li>
+				<li>
+					<a href=""  ng-click="$event.stopPropagation();selectedAll=!selectedAll;hideShowColmsAll(selectedAll,'all');"  data-value="select all" tabIndex="-1">
+						<input type="checkbox" ng-model="selectedAll"/>
+						Select All
+					</a>
+				</li>
+				<li ng-repeat="col in TotalColList | filter:searchText" >
+					<a href=""  ng-click="$event.stopPropagation();selected=!selected;hideShowColms(selected,col);"  data-value={{col}} tabIndex="-1">
+						<input type="checkbox" ng-model="selected"/>
+						{{col}}
+					</a>
+				</li>
+			</ul>
+		</div>
+		
+		<div class="col-sm-12 col-md-12 col-lg-12">
+			<div class="pane-hScroll">
+
+				<div class="spinner" ng-show="loading">
+					<!-- <span class="spinner-container fa fa-spinner fa-spin fa-3x"></span> -->
+					<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+					<span class="sr-only">Loading...</span>
+					<!-- <span><i class="glyphicon glyphicon-refresh spinning"></i></span> -->
+				</div>
+
+			    <table  ng-hide="loading" ng-init="getTableData();">
+			      	<thead>
+			        	<tr>
+			        		
+				  			<th  ng-repeat="(colheaderindex,col) in arrayOfKeys track by $index" ng-mouseover="columnFilter(col)" ng-mouseleave="columnFilterHide(col)" class="custom-dropdown {{col}}" >
+								<button class="heading-btn {{col}}"  ng-click="hideColumn(colheaderindex,col)">
+									<span>{{col}}</span>
+									<i class="fa fa-caret-down"></i>
+								</button>
+							</th>
+						</tr>
+					</thead>
+					<div class="dropdown-content">
+							<a href="#">Link 1</a>
+							<a href="#">Link 2</a>
+							<a href="#">Link 3</a>
+						</div>				
+			    </table>
+				
+			    <div exec-on-scroll-to-top="ctrl.handleScrollToTop" exec-on-scroll-to-bottom="ctrl.handleScrollToBottom"  class="pane-vScroll">
+			        <table>
+				        <tbody>
+							<tr ng-repeat="(rowindex,row) in tableData track by $index">
+								<td  ng-repeat="(colindex,col) in arrayOfKeys" id={{rowindex}}{{colindex}} class={{col}} >
+									<p>{{row[col]}}{{colindex}}{{rowindex}}</p>
+								</td>
+							</tr>
+						</tbody>
+			        </table>
+		    	</div>
+		    </div>
+		</div>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+
+	$('.pane-hScroll').scroll(function() {
+	  $('.pane-vScroll').width($('.pane-hScroll').width() + $('.pane-hScroll').scrollLeft());
+	});
+	
+</script>
+
+
+
+
+
+
+

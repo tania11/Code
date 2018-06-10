@@ -1,0 +1,204 @@
+.navbar-toggle .icon-bar:nth-of-type(3) {
+      top: 1px;
+}
+
+.navbar-toggle .icon-bar:nth-of-type(4) {
+    top: 2px;
+}
+
+.navbar-toggle .icon-bar {
+      position: relative;
+      transition: all 500ms ease-in-out;
+}
+
+.navbar-toggle.active .icon-bar:nth-of-type(2) {
+      top: 6px;
+      transform: rotate(45deg);
+}
+
+.navbar-toggle.active .icon-bar:nth-of-type(3) {
+      background-color: transparent;
+}
+
+.navbar-toggle.active .icon-bar:nth-of-type(4) {
+      top: -6px;
+      transform: rotate(-45deg);
+}
+
+
+
+
+/**************************************************************Table****************************************************************/
+
+
+/*
+* {
+  box-sizing: border-box;
+}*/
+body {
+  font: 14px/1 Arial, sans-serif;
+}
+table {
+  border-collapse: collapse;
+  background: white;
+  table-layout: fixed;
+  width: 100%;
+}
+th{
+  padding: 0px;
+  border: 1px solid #ddd;
+  width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  transition:             width 500ms ease;
+        -moz-transition:    width 500ms ease;
+        -ms-transition:     width 500ms ease;
+        -o-transition:      width 500ms ease;
+        -webkit-transition: width 500ms ease;
+}
+
+td{
+  padding: 0px;
+  border: 1px solid #ddd;
+  width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+   transition:             width 500ms ease;
+        -moz-transition:    width 500ms ease;
+        -ms-transition:     width 500ms ease;
+        -o-transition:      width 500ms ease;
+        -webkit-transition: width 500ms ease;
+}
+
+.pane {
+  background: #eee;
+}
+.pane-hScroll {
+  overflow: auto;
+  border: 2px solid;
+  width:93%;
+  float:right;
+}
+.pane-vScroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 400px;
+}
+
+
+.heading-btn{
+  width:100%;
+  padding:16px 0px;
+}
+
+.hidden-column{
+  width:0px!important;
+}
+
+.unhide-multi-columns{
+  position: relative;
+}
+
+.edit-row{
+  position: absolute;
+    left: -10px;
+    /* padding: 19px 0px; */
+    border: none;
+    width: 95px;
+}
+
+div.unhide-multi-columns .custom-dropdown-menu{
+  height: 176px;
+  overflow-y: scroll;
+}
+
+.dropdown-search{ 
+  width: 100%;
+  height: 27px;
+  border-radius: 6px;
+  border: 1px solid darkgray;
+  }
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.dropdown-content-show {
+    display: block!important;
+}
+
+/**************************************************************Scrollbar*******************************************************/
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+    height:7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #f1f1f1; 
+    border-radius: 5px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+.hide{
+  width:0px;
+}
+
+
+
+
+
+@font-face 
+{ font-family: "Glyphicons Halflings";
+src: url("//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff") ;
+}
+
+/*****************************************SPINNER********************************************/
+
+.spinner{
+  width:150px;
+  margin:auto;
+   display: flex;
+  align-items: center;
+}
+
+.glyphicon.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+@keyframes spin {
+    from {
+        transform: scale(1) rotate(0deg);
+    }
+    to {
+        transform: scale(1) rotate(360deg);
+    }
+}
+@-webkit-keyframes spin2 {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}

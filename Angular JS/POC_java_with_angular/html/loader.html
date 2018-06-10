@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<style>
+.dot {
+    height: 50px;
+    width: 50px;
+    background-color: transparent;
+    border-radius: 50%;
+    transform:rotateZ(0deg);
+    position:absolute;
+    display:flex;
+    align-items:center;
+  }
+
+.line{
+	border:2px solid transparent;
+    position:absolute;
+	left:50%;
+    vertical-align:middle;
+    width:50%;
+    z-index:100;
+    transform-origin:left center;
+}
+.active{
+    transform:rotateZ(360deg);
+    -webkit-transform:rotateZ(360deg);
+}
+.moving-circle{
+	 height: 6px;
+    width: 6px;
+    background-color: blue;
+    border-radius: 50%;
+    transform:translateX(10px);
+    top:0;
+    position:relative;
+    transform-origin:center center;
+    animation-name:circle-anim;
+    -webkit-transition:circle-anim;
+    animation-duration:0.8s;
+    animation-iteration-count:infinite;
+    animation-direction:alternate;
+    animation-timing-function:ease;  
+    animation-fill-mode:backwards;
+}
+
+@keyframes circle-anim {
+    0%
+    {
+    	height: 4px;
+ 	 	width: 4px;
+     }
+   
+    100% {
+       height: 6px;
+       width: 6px;
+     }
+}
+
+</style>
+</head>
+<body ng-app="myApp" ng-controller="customersCtrl">
+  <div class="dot" ng-init="showIt()">
+    <div  ng-repeat="x in [].constructor(12) track by $index" ng-style="{'transform' : 'rotateZ('+($index*30)+'deg)'}" class="line">
+    	<div ng-style="{'animation-delay' : (0.1*$index)+'s'}"  class="moving-circle"></div>
+    </div>
+  </div>
+</body>
+</html> 
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('customersCtrl', function($scope,$timeout) {
+
+
+    
+});
+
+</script>

@@ -1,0 +1,101 @@
+<style>
+.total-wrapper{
+    margin: auto;
+    width: 63%;
+}
+.fix-column {
+    float: left;
+}
+.thead {
+    height: 40px;
+    white-space: nowrap;
+}
+.thead > span {
+    display: inline-block;
+    width: 120px;
+    line-height: 40px;
+    box-shadow: inset 0 0 1px 0 rgba(0,0,0,.5);
+    background-color: rgba(255,0,0,.3);
+    text-align: center;
+}
+.trow {
+    white-space: nowrap;
+}
+.trow > span {
+    display: inline-block;
+    width: 120px;
+    box-shadow: inset 0 0 1px 0 rgba(0,0,0,.5);
+    line-height: 20px;
+    height: 30px;
+}
+.tbody {
+    height: 462px;
+    overflow: auto;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.fix-column > .tbody {
+    overflow: hidden;
+    /*padding-bottom: 50px;*/
+}
+/*.fix-column > .tbody > .trow:last-child {margin-bottom: 50px;}*/
+
+.fix-column > .tbody > .trow {
+    margin-top: -50px;
+    margin-bottom: 50px;
+}
+.fix-column > .tbody > .trow:first-child {
+    margin-top: 0px;
+}
+
+.rest-columns {
+    width: 100%;
+}
+.rest-columns > .thead {
+    /*padding-right: 50px;*/
+    overflow: hidden;
+}
+/*.rest-columns > .thead > :last-child {margin-right: 50px;}*/
+.rest-columns > .thead > span {
+    margin-right: 50px;
+    margin-left: -50px;
+}
+.rest-columns > .thead > :first-child {margin-left: 0px;}
+
+</style>
+
+<div class="total-wrapper">
+    <div class="fix-column">
+        <div class="thead">
+            <span>Actions</span>
+        </div>
+        <div class="tbody">
+            <div class="trow" ng-repeat="(rowindex,row) in tableData">
+                <span><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="rest-columns" ng-init="getTableData();">
+        <div class="thead">
+            <span ng-repeat="(colheaderindex,col) in arrayOfKeys" class={{col}}>{{col}}</span>
+        </div>
+        <div class="tbody">
+            <div class="trow"  ng-repeat="(rowindex,row) in tableData">
+                <span ng-repeat="(colindex,col) in arrayOfKeys" id={{rowindex}}{{colindex}} class={{col}} >{{row[col]}}{{colindex}}{{rowindex}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+  var fcBody = document.querySelector(".fix-column > .tbody"),
+      rcBody = document.querySelector(".rest-columns > .tbody"),
+      rcHead = document.querySelector(".rest-columns > .thead");
+  rcBody.addEventListener("scroll", function() {
+      fcBody.scrollTop = this.scrollTop;
+      rcHead.scrollLeft = this.scrollLeft;
+  }, { passive: true });
+
+</script>
