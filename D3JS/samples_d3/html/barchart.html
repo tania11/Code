@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="../js/d3.v4.min.js"></script>
+    </head>
+    <body id="chart_container">
+    </body>
+</html>
+<script>
+    var data=[{
+        "year":"2010",
+        "population":10
+    },
+    {
+        "year":"2011",
+        "population":50
+    },
+    {
+        "year":"2012",
+        "population":70
+    },
+    {
+        "year":"2013",
+        "population":20
+    },
+    {
+        "year":"2014",
+        "population":5
+    },
+    {
+        "year":"2015",
+        "population":17
+    },
+    {
+        "year":"2016",
+        "population":90
+    },
+    {
+        "year":"2017",
+        "population":10
+    }
+    ];
+    
+    var width = 300,
+        barheight =30,
+        maxData=d3.max(data,function(d,i){
+            return d.population;
+        }),
+        minData=d3.min(data,function(d,i){
+            return d.population;
+        });;
+
+    //bar height scaling
+    var barHeightScale=d3.scaleLinear()
+                            .domain([minData,maxData])
+                            .range([minData,data.length*barheight]);
+
+    //bar color scaling
+    var barColorScale=d3.scaleLinear()
+                        .domain([minData,maxData])
+                        .range(["red","blue"]);
+
+    //scaling y-axis
+    var yscale=d3.scaleLinear()
+                    .domain([0,maxData])
+                    .range([data.length*barheight,0]);
+
+    //scaling x-axis
+    var xscale=d3.scaleBand()
+                    .domain(data.map(function(d,i){
+                            return d.year;
+                        })
+                    )
+                    .rangeRound([0,width-20])
+                    .paddingInner(0.4);
+
+    //creating y-axis with scale
+    var y_axis=d3.axisLeft()
+                    //.ticks(5)
+                    .scale(yscale);
+
+    //creating x-axis with scale
+    var x_axis=d3.axisBottom()
+                    .scale(xscale);
+
+    var svg=d3.select("#chart_container")
+        .append("svg")
+        .attr("width",width)
+        .attr("height",data.length*barheight+50);
+
+    var yAxis=svg.append("g")
+                    .attr("transform",function(){
+                        return "translate(30,0)";
+                    })
+                    .call(y_axis);
+    
+    var xAxis=svg.append("g")
+                    .attr("transform",function(){
+                        return "translate(30," + data.length*barheight +")";
+                    })
+                    .call(x_axis);
+    
+    var graphContainer=svg.append("g")
+                            .attr("transform","translate(30,0)");
+
+    var bar=graphContainer.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class","bar")
+                .attr("x",function(d){
+                    return xscale(d.year);
+                })
+                .attr("y",function(){
+                    return data.length*barheight;
+                })
+                .attr("width",xscale.bandwidth())
+                .transition()
+                .ease(d3.easeLinear)
+                .duration(1000)
+                .delay(function(d,i){
+                    return 250*i;
+                })
+                .attr("y",function(d){
+                    return yscale(d.population);
+                })
+                .attr("height",function(d,i){
+                    return (data.length*barheight)-yscale(d.population);
+                })
+                .style("fill",function(d,i){
+                    return barColorScale(d.population);
+                });
+
+</script>
+<!-- d3.scaleBand()
+.rangeRound([0, width])
+.paddingInner(0.05);
+
+var parseDate = d3.timeParse("%Y-%m");
+var x = d3.scaleBand().rangeRound([0, width]).paddingInner(0.05);
+var y = d3.scaleLinear().range([height, 0]);
+var xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%Y-%m"));
+var yAxis = d3.axisLeft(y).ticks(10);
+for the bars: .attr("width", x.bandwidth()) -->

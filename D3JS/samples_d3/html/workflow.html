@@ -38,6 +38,18 @@
         .workflow{
             height:50px;
         }
+
+        .workflow-heading-group{
+            width:100%;
+            overflow: hidden;
+            height:30px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .workflow-heading{
+           min-width: 9.5%;
+           float:left;
+        }
     </style>
     
     <body id="body_id">
@@ -49,8 +61,22 @@
     d3.json("https://api.myjson.com/bins/1fxtky",function(error,response){
         if(error){
             alert(error);
-        }    
+        } 
 
+        var workflowHeading=d3.select("#body_id")
+            .append("div")
+            .attr("class","workflow-heading-group");
+
+        workflowHeading
+            .selectAll(".workflow-heading")
+            .data(response[0])
+            .enter()
+            .append("div")
+            .attr("class","workflow-heading")
+            .text(function(d){
+                return d.status;
+            });
+            
         response.forEach(function(data){
             dynamicWorkflow(data);
         });
