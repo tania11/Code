@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<html>
+    <head>
+        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+    <body id="tree_container">
+
+    </body>
+</html>
+<script>
+    var data = {
+        "name": "A1",
+        "children": [
+            {
+            "name": "B1",
+            "children": [
+                {
+                "name": "C1",
+                "value": 100
+                },
+                {
+                "name": "C2",
+                "value": 300
+                },
+                {
+                "name": "C3",
+                "value": 200
+                }
+            ]
+            },
+            {
+            "name": "B2",
+            "value": 200
+            }
+        ]
+        };
+
+//A d3.hierarchy object is a data structure that represents a hierarchy
+var root=d3.hierarchy(data);
+
+//console.log(root.descendants());//get array of all nodes
+console.log(root.links()); //In the case of root.links() each array element is an object containing
+//two properties source and target which represent the link’s source and target nodes.
+
+
+//The tree layout arranges the nodes of a hierarchy in a tree like arrangement.
+var treeLayout=d3.tree();
+treeLayout.size([400,400]);
+
+
+//This’ll write x and y values on each node of root.
+var treeData=treeLayout(root);
+//console.log(root);
+console.log(treeData.descendants());
+
+// We can now:
+
+// --use root.descendants() to get an array of all the nodes
+// --join this array to circles (or any other type of SVG element)
+// --use x and y to position the circles
+// and
+
+// --use root.links() to get an array of all the links
+// --join the array to line (or path) elements
+// --use x and y of the link’s source and target to position the line
+// (In the case of root.links() each array element is an object containing two properties 
+// source and target which represent the link’s source and target nodes.)
+
+
+var maxWidth=d3.max(treeData.links(),function(d){
+                return d.target.x;
+            });
+
+var maxHeight=d3.max(treeData.links(),function(d){
+            return d.target.y;
+        });
+var circleRadius=6;
+
+var svg=d3.select("#tree_container")
+            .append("svg")
+            .attr("width",maxWidth+(circleRadius*2))
+            .attr("height",maxHeight+(circleRadius*2))
+            .append("g")
+            .attr("transform","translate(5,5)");
+    
+    svg.append("g").attr("class","links");
+
+    svg.append("g").attr("class","nodes");
+
+    d3.select("svg g.nodes")
+        .selectAll("circle")
+        .data(treeData.descendants())
+        .enter()
+        .append("circle")
+        .style("fill",function(d){
+            return "steelblue";
+        })
+        .style("display","none")
+        .attr("r",circleRadius)
+        .attr("cx",function(d){
+            return (d.parent) ? d.parent.x : d.x;
+        })
+        .attr("cy",function(d){
+            return (d.parent) ? d.parent.y : d.y;
+        })
+        .transition()
+        .duration(1000)
+        .delay(function(d,i){
+            return 1000*(d.depth-1);
+        })
+        .attr("cx",function(d){
+            return d.x;
+        })
+        .attr("cy",function(d){
+            return d.y;
+        })
+        .style("display","block");
+       
+    
+    var nodeLinks=d3.select("svg g.links")
+        .selectAll("line")
+        .data(treeData.links())
+        .enter()
+        .append("line")       
+        .style("stroke","#ccc")
+        .style("stroke-width",2);
+        
+        nodeLinks.attr("x1",function(d){
+            return d.source.x;
+        })
+        .attr("y1",function(d){
+            return d.source.y;
+        }) 
+        .attr("x2",function(d){
+            return d.source.x;
+        })
+        .attr("y2",function(d){
+            return d.source.y;
+        })  
+        .transition()
+        .duration(1000) 
+        .delay(function(d,i){
+            return 1000*d.source.depth;
+        }) 
+        .attr("x2",function(d){
+            return d.target.x;
+        })
+        .attr("y2",function(d){
+            return d.target.y;
+        });
+
+//Reference:--http://d3indepth.com/layouts/
+</script>
+
