@@ -3,7 +3,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <html>
     <head>
-        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+        <script type="text/javascript" src="../js/d3.v4.min.js"></script>
     </head>
     <body id="tree_container">
 
@@ -36,48 +36,35 @@
             }
         ]
         };
-
 //A d3.hierarchy object is a data structure that represents a hierarchy
 var root=d3.hierarchy(data);
-
 //console.log(root.descendants());//get array of all nodes
 console.log(root.links()); //In the case of root.links() each array element is an object containing
 //two properties source and target which represent the link’s source and target nodes.
-
-
 //The tree layout arranges the nodes of a hierarchy in a tree like arrangement.
 var treeLayout=d3.tree();
 treeLayout.size([400,400]);
-
-
 //This’ll write x and y values on each node of root.
 var treeData=treeLayout(root);
 //console.log(root);
 console.log(treeData.descendants());
-
 // We can now:
-
 // --use root.descendants() to get an array of all the nodes
 // --join this array to circles (or any other type of SVG element)
 // --use x and y to position the circles
 // and
-
 // --use root.links() to get an array of all the links
 // --join the array to line (or path) elements
 // --use x and y of the link’s source and target to position the line
 // (In the case of root.links() each array element is an object containing two properties 
 // source and target which represent the link’s source and target nodes.)
-
-
 var maxWidth=d3.max(treeData.links(),function(d){
                 return d.target.x;
             });
-
 var maxHeight=d3.max(treeData.links(),function(d){
             return d.target.y;
         });
 var circleRadius=6;
-
 var svg=d3.select("#tree_container")
             .append("svg")
             .attr("width",maxWidth+(circleRadius*2))
@@ -86,9 +73,7 @@ var svg=d3.select("#tree_container")
             .attr("transform","translate(5,5)");
     
     svg.append("g").attr("class","links");
-
     svg.append("g").attr("class","nodes");
-
     d3.select("svg g.nodes")
         .selectAll("circle")
         .data(treeData.descendants())
@@ -150,7 +135,5 @@ var svg=d3.select("#tree_container")
         .attr("y2",function(d){
             return d.target.y;
         });
-
 //Reference:--http://d3indepth.com/layouts/
 </script>
-

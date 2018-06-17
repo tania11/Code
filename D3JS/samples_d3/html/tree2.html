@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<html>
+    <head>
+        <script type="text/javascript" src="../js/d3.v4.min.js"></script>
+    </head>
+	<style>
+		.link{
+			fill:none;
+			stroke:#ccc;
+			stroke-width:2;
+		}
+	</style>
+    <body id="tree_container">
+
+    </body>
+</html>
+<script>
+d3.json("https://api.myjson.com/bins/b7hum",function(error,response){
+    
+	var treeLayout,
+		treeData,
+		circleRadius,i;
+	treeGeneration(response);	
+});
+
+function treeGeneration(data){
+	//A d3.hierarchy object is a data structure that represents a hierarchy
+	var root=d3.hierarchy(data);
+	
+	//The tree layout arranges the nodes of a hierarchy in a tree like arrangement.
+	treeLayout=d3.tree();
+		treeLayout.size([400,400]);
+		
+	//This’ll write x and y values on each node of root.
+	treeData=treeLayout(root);
+		
+	var maxWidth=d3.max(treeData.links(),function(d){
+						return d.target.x;
+					});
+					
+	var maxHeight=d3.max(treeData.links(),function(d){
+				return d.target.depth*200;
+			});
+	i=0;	
+	circleRadius=6;
+	
+	var svg=d3.select("#tree_container")
+				.append("svg")
+				.attr("width",maxWidth+(circleRadius*2))
+				.attr("height",maxHeight+(circleRadius*2))
+				.append("g")
+				.attr("transform","translate(5,5)");
+		
+		svg.append("g").attr("class","links");
+		svg.append("g").attr("class","nodes");		
+		
+		treeData.children.forEach(collapse);
+		update(treeData);
+	
+	function collapse(d){
+		if(d.children){
+			d._children=d.children;
+			d._children.forEach(collapse);	
+			d.children=null;
+		}
+	}
+	
+	function update(root){
+		console.log(root.descendants());//get array of all nodes
+		//console.log(root.links());
+			
+			var circle=d3.select("svg g.nodes")
+				.selectAll("circle")
+				.data(root.descendants(),function(d){
+					return d.id || (d.id=++i);
+				});
+				
+			var circleEnter=circle.enter()
+				.append("circle")
+				.style("fill",function(d){
+					return "steelblue";
+				})
+				.style("display","none")
+				.attr("r",circleRadius)
+				.attr("cx",function(d){
+					return (d.parent) ? d.parent.x : d.x;
+				})
+				.attr("cy",function(d){
+					return (d.parent) ? d.parent.depth*100 : d.depth*100;
+				});
+				
+			circleEnter.on("mouseover",function(d){
+				if(d.children || d._children){
+					d3.select(this).style("cursor","pointer");
+				}
+			});
+			
+			circleEnter.on("click",function(d){
+				expand(d);
+				//console.log(d);
+			});
+
+			var nodeUpdate=circleEnter.merge(circle);
+			
+			nodeUpdate.transition()
+				.duration(1000)
+				.attr("cx",function(d){
+					return d.x;
+				})
+				.attr("cy",function(d){
+					return d.depth*100;
+				})
+				.style("display","block");
+		
+			
+			//links update
+			var nodeLinks=d3.select("svg g.links")
+				.selectAll("path")
+				.data(root.links(),function(d){
+					return d.target.id;
+				});
+				
+			var nodeLinksEnter=nodeLinks.enter()
+				.append("path")
+				.classed("link",true)
+				.attr("d",function(d){				
+					return diagonal(d.source,d.source);
+				});
+				
+			var nodeLinksUpdate=nodeLinksEnter.merge(nodeLinks);
+			
+			nodeLinksUpdate.transition()
+				.duration(1000)
+				.attr("d",function(d){
+					return diagonal(d.target.parent,d.target);
+				});
+		
+	}
+	
+	//curved links generation
+	function diagonal(s,d){
+			
+			var path=`M ${s.x} ${s.depth*100}
+						C ${s.x} ${(s.depth*100 + d.depth*100) / 2},
+						${d.x} ${(s.depth*100 + d.depth*100) / 2},
+						${d.x} ${d.depth*100}`
+			return path;
+	}
+			
+		//on click expand and collapse
+		function expand(d){
+			//console.log(d);
+			if(d.children){
+				d._children=d.children;
+				d.children=null;
+			}
+			else{
+				d.children=d._children;
+				d._children = null;
+			}
+			
+			update(d);
+		}
+}
+//Reference:--http://d3indepth.com/layouts/
+</script>
