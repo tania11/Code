@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="Developed By Tania">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    
+</head>
+<style>
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2;
+    }
+
+    .child-length {
+        font-weight: bold;
+        color: #000;
+        font-size: 10px;
+    }
+
+    .node-custom {
+        color: #fff;
+    }
+
+    #tree_container {
+        width: 62%;
+        float:right;
+    }
+
+    #tree_container>svg {
+        border: 2px solid #000000;
+        box-shadow: 5px 2px 5px #888888;
+    }
+
+    #small_view_tree_container {
+        width: 22%;
+        float:left;
+    }
+
+    #small_view_tree_container>svg {
+        border: 2px solid #000000;
+        box-shadow: 5px 2px 5px #888888;
+    }
+
+    #tooltip-container {
+        min-width: 10px;
+        height: auto;
+        position: absolute;
+        background-color: #ccc;
+        z-index: 100;
+        display: none;
+    }
+
+    .tooltip-content {
+        padding: 2px;
+        margin: auto;
+        font-size: 12.6px;
+    }
+
+    .tooltip-content tr td:first-child {
+        font-weight: bold;
+    }
+
+    .has-children {
+        stroke: #000;
+        stroke-width: 5;
+    }
+
+    .child-length {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .header-container {
+        width: 100%;
+        height: 50px;
+        background: #435165;
+        margin-bottom: 20px;
+    }
+    
+    @-webkit-keyframes pulse {
+        0% {
+            -webkit-transform: scale(1.0);
+            opacity: 1.0;
+            transform: scale(1.0);
+            opacity: 1.0;
+        }
+
+        100% {
+            -webkit-transform: scale(2.2);
+            opacity: 0;
+            transform: scale(2.2);
+            opacity: 0;
+        }
+    }
+
+    .pulse {
+        /* Giving Animation Function */
+        animation: pulse 2s linear infinite;
+        -webkit-animation: pulse 2s linear infinite;
+    }
+
+    @-webkit-keyframes circular {
+        0% {
+            -webkit-transform: scale(1.0);
+            opacity: 1.0;
+            transform: scale(1.0);
+        }
+
+        100% {
+            -webkit-transform: scale(2.2);
+            opacity: 0.0;
+            transform: scale(2.2);
+        }
+    }
+
+    .root-open-radiationAnimation {
+        /* Giving Animation Function */
+        animation: circular 2s linear infinite;
+        -webkit-animation: circular 2s linear infinite;
+    }
+
+    .radiation-circle {
+        stroke: none;
+        stroke-width: 8;
+        fill: #000;
+    }
+
+    .root-open-radiation {
+        stroke: #49c3b1;
+        stroke-width: 2;
+        fill: none;
+    }
+</style>
+
+<body style="margin:0px;" ng-app="treeApp" ng-controller="treeCtrl">
+    <div class="header-container">
+    </div>
+    <div id="tooltip-container" class="tooltip">
+    </div>
+    <div id="small_view_tree_container">
+    </div>
+    <div id="tree_container">
+    </div>
+</body>
+
+</html>
+<script>
+    var app = angular.module('treeApp', []);
+    app.controller('treeCtrl', function ($scope, $http) {
+        var treeLayout, root, treeData, circleRadius = 13, i = 0, height = 500, width = 800
+        ,smallViewWidth=400,smallViewHeight=200;
+
+        $http.get("https://api.myjson.com/bins/xu15i").then(function (response) {
+            $scope.treeGeneration(response.data);
+        });
+        $scope.treeGeneration = function (data) {
+
+            var zoom = d3.zoom()
+                .on("zoom", zoomed);
+            
+            var smallViewzoom = d3.zoom()
+                .on("zoom", smallViewzoomed);
+                    
+            var svg = d3.select("#tree_container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .call(zoom)
+                .on("dblclick.zoom", null);
+
+            var svgGroup = svg.append("g")
+                .classed("svg-group", true)
+                .attr("transform", "translate(" + width / 2 + ",20)");
+
+            svgGroup.append("g").attr("class", "links");
+            svgGroup.append("g").attr("class", "nodes");
+
+
+            var smallViewSvg = d3.select("#small_view_tree_container")
+                .append("svg")
+                .attr("width", smallViewWidth)
+                .attr("height", smallViewHeight)
+                .call(smallViewzoom)
+                .on("dblclick.zoom", null);
+
+            var smallViewsvgGroup = smallViewSvg.append("g")
+                .classed("svg-group-small", true)
+                .attr("transform", "translate(" + smallViewWidth / 2 + ",20) scale(0.3)");
+
+            smallViewsvgGroup.append("g").attr("class", "links");
+            smallViewsvgGroup.append("g").attr("class", "nodes");
+
+            function zoomed() {
+                d3.select(".svg-group").attr("transform", d3.event.transform); 
+                // d3.select(".svg-group-small")
+                //     .attr("transform","translate("+d3.event.transform.x+","+d3.event.transform.y+") scale("+d3.event.transform.k+")");    
+            }
+
+            function smallViewzoomed() {
+                d3.select(".svg-group-small")
+                    .attr("transform","translate("+d3.event.transform.x+","+d3.event.transform.y+") scale(0.3)");    
+            }
+
+            //The tree layout arranges the nodes of a hierarchy in a tree like arrangement.
+            treeLayout = d3.tree().nodeSize([100, 100]);
+            // Assigns parent, children, height, depth
+            root = d3.hierarchy(data, function (d) {
+                return d.children;
+            });
+
+            root.x0 = width / 2;
+            root.y0 = height / 2;
+
+            root.children.forEach(collapse);
+            update(root);
+        }
+
+        function collapse(d) {
+            if (d.children) {
+                d._children = d.children;
+                d._children.forEach(collapse);
+                d.children = null;
+            }
+        }
+
+        function update(singleTree) {
+            $scope.tooltipHideShow = false;
+            $scope.tooltipContent = [];
+
+            //This’ll write x and y values on each node of root.
+            var treeData = treeLayout(root);
+            var nodes = treeData.descendants();
+
+            //var links=treeData.links();
+            var links = treeData.descendants().slice(1);
+
+            //set fixed depth
+            nodes.forEach(function (d) {
+                d.y = d.depth * 100;
+            });
+
+            //enter nodes
+            var circle = d3.selectAll("svg g.nodes")
+                .selectAll("g.node")
+                .data(nodes, function (d) {
+                    return d.id || (d.id = ++i);
+                });
+
+            //append circle and set to parent's position before transition
+            var circleEnter = circle.enter().append("g")
+                .classed("node", true)
+                .attr("transform", function (d) {
+                    return "translate(" + (singleTree.x0 - 6) + "," + singleTree.y0 + ")";
+                })
+                .call(d3.drag()
+                    .on("start", dragstart)
+                    .on("drag", dragged)
+                    .on("end", dragend));
+
+
+            var nodeOpenOnclick = circleEnter.filter(function (d) {
+                if(d.children || d._children){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            });
+
+            nodeOpenOnclick.selectAll(".root-open-radiation")
+                .data([1,2,3,4,5,6,7])
+                .enter()
+                .append("circle")
+                .attr('r', 20)
+                .classed("root-open-radiation", true)
+                .classed("root-open-radiationAnimation",true)
+                .style("animation-delay",function(d,i){
+                    return 0.5*i+"s";
+                });
+                
+
+            //radiation on clickable nodes(nodes having children)    	
+             circleEnter.filter(function (d) {
+                 return (d._children) ? true : false;
+             })
+            .append("circle")
+            .attr("r", 20)
+            .classed("pulse", true)
+            .classed("radiation-circle", true);
+
+
+            circleEnter.append("circle")
+                .classed("node", true)
+                .attr("r", 20)
+                .classed("has-children", function (d) {
+                    if (d._children) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                })
+                .style("fill", function (d) {
+                    return (d.data.value == true) ? "#DC143C" : "steelblue";
+                })
+
+
+            circleEnter.append("text")
+                .attr("y", 5)
+                .attr("x", -2)
+                .classed("child-length", true)
+                .text(function (d) {
+                    if (d.data.name.length > 9) {
+                        return d.data.name.substring(0, 9) + '...';
+                    }
+                    else {
+                        return d.data.name;
+                    }
+                })
+                .style("text-anchor", "start");
+
+            //on node hover	
+            circleEnter.on("mouseover", function (d) {
+                //tooltip show 
+                $scope.tooltipHideShow = true;
+                $scope.tooltipContent.push(d.data);
+                var tooltip = d3.select("#tooltip-container")
+                    .style("display", "block")
+                    .style("left", (d3.event.pageX - 10) + "px")
+                    .style("top", (d3.event.pageY + 20) + "px");
+                tooltip.html("<table class='tooltip-content'>" +
+                    "<tr><td>Name:</td><td>" + d.data.name + "</td></tr>" +
+                    "<tr><td>Type:</td><td>" + d.data.type + "</td></tr>" +
+                    "<tr><td>Value:</td><td>" + d.data.value + "</td><tr>" +
+                    "</table>");
+
+                //cursor pointer
+                if (d.children || d._children) {
+                    d3.select(this).style("cursor", "pointer");
+                }
+            });
+            circleEnter.on("mouseout", function (d) {
+                d3.select(this).style("cursor", "default");
+
+                //tooltip hide
+                $scope.tooltipHideShow = false;
+                $scope.tooltipContent = [];
+                d3.select("#tooltip-container").style("display", "none");
+                d3.select(".tooltip-content").remove();
+            })
+
+            //on node click
+            circleEnter.on("dblclick", function (d) {
+                expand(d);
+                //console.log(d);
+            });
+
+            //updating nodes
+            var nodeUpdate = circleEnter.merge(circle);
+
+            //set child nodes to new postion after transition
+            nodeUpdate.transition()
+                .duration(1000)
+                .attr("transform", function (d) {
+                    return "translate(" + (d.x - 6) + "," + d.y + ")";
+                });
+            
+            
+            nodeUpdate.select("circle.root-open-radiation")
+                .classed("root-open-radiation", function (d) {
+                    console.log(d);
+                     if(d._children || d.children){
+                         return true;
+                     }
+                     else{
+                         return false;
+                     }
+                });
+                
+
+             nodeUpdate.select("circle.pulse")
+                 .classed("pulse", function (d) {
+                     return (d.children) ? false : true;
+                 })
+                 .attr("r", function (d) {
+                     if (d.children) {
+                         return 0;
+                     }
+                     else if (d._children) {
+                         return 20;
+                     }
+                 });
+
+
+
+            nodeUpdate.select("circle.node")
+                .classed("node-custom", true)
+                .style("fill", function (d) {
+                    return (d.data.value == true) ? "#DC143C" : "steelblue";
+                });
+
+
+            // Remove any exiting nodes
+            var nodeExit = circle.exit().transition()
+                .duration(1000)
+                .attr("transform", function (d) {
+                    return "translate(" + singleTree.x + "," + singleTree.y + ")";
+                })
+                .remove();
+
+            //links update
+            var nodeLinks = d3.selectAll("svg g.links")
+                .selectAll("path")
+                .data(links, function (d) {
+                    return d.id;
+                });
+
+            var nodeLinksEnter = nodeLinks.enter()
+                .insert('path', "g")
+                .classed("link", true)
+                .attr("d", function (d) {
+                    var xy = { x: singleTree.x0, y: singleTree.y0 };
+                    return diagonal(xy, xy)
+                });
+
+            var nodeLinksUpdate = nodeLinksEnter.merge(nodeLinks);
+
+            nodeLinksUpdate.transition()
+                .duration(1000)
+                .attr("d", function (d) {
+                    return diagonal(d, d.parent);
+                });
+
+            var linkExit = nodeLinks.exit()
+                .transition()
+                .duration(1000)
+                .attr("d", function (d) {
+                    var xy = { x: singleTree.x, y: singleTree.y };
+                    return diagonal(xy, xy)
+                });
+
+            // Store the old positions for transition on click
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+        }
+
+
+        //drag 
+        function dragstart(d) {
+            d3.select(this).raise().classed("active", true);
+        }
+        function dragged(d) {
+            d3.select(this).attr("transform", function (d) {
+                return "translate(" + d3.event.x + "," + d3.event.y + ")";
+            });
+        }
+        function dragend(d) {
+            d3.select(this).classed("active", false);
+        }
+        //curved links generation
+        function diagonal(s, d) {
+
+            var path = `M ${s.x} ${s.y}
+                    C ${s.x} ${(s.y + d.y) / 2},
+                    ${d.x} ${(s.y + d.y) / 2},
+                    ${d.x} ${d.y}`
+            return path;
+        }
+
+        //on click expand and collapse
+        function expand(d) {
+            //console.log(d);
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            }
+            else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
+    });
+
+</script>
+
+<!--Reference:http://d3indepth.com/layouts/-->
+<!--"When a node size is specified, the root node is always positioned at ⟨0, 0⟩.
+    When using size, the positioning of each node takes advantage of available space - 
+    positioning in relation to the specified width/height with no consideration for node density.
+    When using nodeSize, positioning is relative to other nodes, 
+    not the available area for the diagram (though it will be anchored at [0,0]).
+    By initially using .size, you didn't have to worry about positioning.
+    Using .nodeSize, you'll have to set a transform for your nodes so that they are centered properly
+       .-->
