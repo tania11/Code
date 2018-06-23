@@ -182,21 +182,6 @@
             svgGroup.append("g").attr("class", "links");
             svgGroup.append("g").attr("class", "nodes");
 
-
-            var smallViewSvg = d3.select("#small_view_tree_container")
-                .append("svg")
-                .attr("width", smallViewWidth)
-                .attr("height", smallViewHeight)
-                .call(smallViewzoom)
-                .on("dblclick.zoom", null);
-
-            var smallViewsvgGroup = smallViewSvg.append("g")
-                .classed("svg-group-small", true)
-                .attr("transform", "translate(" + smallViewWidth / 2 + ",20) scale(0.3)");
-
-            smallViewsvgGroup.append("g").attr("class", "links");
-            smallViewsvgGroup.append("g").attr("class", "nodes");
-
             function zoomed() {
                 d3.select(".svg-group").attr("transform", d3.event.transform); 
                 // d3.select(".svg-group-small")
@@ -503,3 +488,19 @@
     By initially using .size, you didn't have to worry about positioning.
     Using .nodeSize, you'll have to set a transform for your nodes so that they are centered properly
        .-->
+
+
+
+<!--var smallViewSvg = d3.select("#small_view_tree_container")
+                .append("svg")
+                .attr("width", smallViewWidth)
+                .attr("height", smallViewHeight)
+                .call(smallViewzoom)
+                .on("dblclick.zoom", null);
+
+            var smallViewsvgGroup = smallViewSvg.append("g")
+                .classed("svg-group-small", true)
+                .attr("transform", "translate(" + smallViewWidth / 2 + ",20) scale(0.3)");
+
+            smallViewsvgGroup.append("g").attr("class", "links");
+            smallViewsvgGroup.append("g").attr("class", "nodes");-->
